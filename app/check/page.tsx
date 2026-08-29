@@ -5,6 +5,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import Questionnaire from "@/components/Questionnaire";
 import AssessmentResult from "@/components/AssessmentResult";
+import LeadForm from "@/components/LeadForm";
 import { EvFormData } from "@/lib/types";
 import { calculateAssessment } from "@/lib/assessment";
 import { track } from "@/lib/analytics";
@@ -74,9 +75,17 @@ export default function CheckPage() {
           </>
         )}
 
-        {view === "lead" && (
-          // Lead form is wired in the next step.
-          <p className="text-muted">Lead form loads here next.</p>
+        {view === "lead" && data && assessment && (
+          <>
+            <LeadForm data={data} assessment={assessment} />
+            <button
+              type="button"
+              onClick={() => setView("result")}
+              className="mt-8 text-sm font-medium text-brand hover:text-brand-dark"
+            >
+              ← Back to assessment
+            </button>
+          </>
         )}
       </main>
       <SiteFooter />

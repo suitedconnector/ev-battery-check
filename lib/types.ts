@@ -68,3 +68,27 @@ export interface Assessment {
   };
   urgency: Urgency;
 }
+
+// ---- Lead capture (POSTed to /api/lead) ----
+// Shape kept clean + typed so it can later be forwarded to a DB or CRM
+// without reworking the client.
+
+export interface LeadPayload {
+  name: string;
+  email: string;
+  phone?: string;
+  zip: string;
+  vehicle: {
+    make: string;
+    model: string;
+    year: number | "";
+  };
+  problem: ProblemValue | "";
+  assessmentCategory: AssessmentCategory;
+  description: string;
+  consent: boolean;
+  /** Which configured provider this lead is attributed to. */
+  providerId: string;
+  /** ISO timestamp set client-side at submit. */
+  submittedAt: string;
+}
