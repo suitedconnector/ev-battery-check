@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import Questionnaire from "@/components/Questionnaire";
@@ -20,6 +20,12 @@ export default function CheckPage() {
     () => (data ? calculateAssessment(data) : null),
     [data]
   );
+
+  // Each view swap replaces the whole screen — start it at the top so the
+  // user isn't dropped mid-page (most visible on mobile after a bottom CTA).
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [view]);
 
   function handleComplete(formData: EvFormData) {
     const result = calculateAssessment(formData);
