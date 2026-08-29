@@ -1,69 +1,156 @@
-import Image from "next/image";
+import Link from "next/link";
+import type { Metadata } from "next";
+import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
+import { siteConfig } from "@/lib/config";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
+
+const steps = [
+  {
+    title: "Answer a few questions",
+    body: "Tell us your vehicle and what you're noticing — takes about a minute.",
+  },
+  {
+    title: "Get a preliminary read",
+    body: "We classify your situation and explain the reasoning in plain language.",
+  },
+  {
+    title: "Know your next step",
+    body: "See likely next steps, rough cost exposure, and connect with a local specialist.",
+  },
+];
+
+const symptoms = [
+  "Reduced driving range",
+  "Battery warning light",
+  "Won't charge",
+  "Slow charging",
+  "Sudden loss of power",
+  "Fast battery drain",
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <>
+      <SiteHeader />
+
+      <main>
+        {/* Hero */}
+        <section className="mx-auto max-w-5xl px-4 pt-16 pb-14 sm:pt-24 sm:pb-20">
+          <p className="text-sm font-semibold uppercase tracking-wide text-brand">
+            {siteConfig.city} &amp; the {siteConfig.region}
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+          <h1 className="mt-3 text-4xl sm:text-5xl font-extrabold leading-tight text-ink max-w-3xl">
+            Is Your EV Battery Losing Its Charge?
+          </h1>
+          <p className="mt-5 text-lg sm:text-xl text-muted max-w-2xl">
+            Get a quick preliminary assessment of your EV battery situation and
+            understand whether it&apos;s worth getting professionally diagnosed.
+          </p>
+          <div className="mt-8 flex flex-col sm:flex-row gap-3 sm:items-center">
+            <Link
+              href="/check"
+              className="inline-flex justify-center items-center rounded-lg bg-brand px-7 py-3.5 text-base font-semibold text-white hover:bg-brand-dark transition-colors"
+            >
+              Check My EV
+            </Link>
+            <span className="text-sm text-faint">
+              Free · About 1 minute · No account needed
+            </span>
+          </div>
+
+          {/* Symptom chips */}
+          <div className="mt-10 flex flex-wrap gap-2">
+            {symptoms.map((s) => (
+              <span
+                key={s}
+                className="rounded-full border border-line bg-surface px-3 py-1 text-sm text-muted"
+              >
+                {s}
+              </span>
+            ))}
+          </div>
+        </section>
+
+        {/* How it works */}
+        <section className="border-y border-line bg-surface">
+          <div className="mx-auto max-w-5xl px-4 py-14">
+            <h2 className="text-2xl font-bold text-ink">How it works</h2>
+            <ol className="mt-8 grid gap-6 sm:grid-cols-3">
+              {steps.map((step, i) => (
+                <li
+                  key={step.title}
+                  className="rounded-xl border border-line bg-white p-6"
+                >
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand/10 text-sm font-bold text-brand">
+                    {i + 1}
+                  </div>
+                  <h3 className="mt-4 font-semibold text-ink">{step.title}</h3>
+                  <p className="mt-2 text-sm text-muted">{step.body}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        {/* Local trust / SEO-supporting copy */}
+        <section className="mx-auto max-w-5xl px-4 py-14">
+          <div className="grid gap-8 sm:grid-cols-2 items-start">
+            <div>
+              <h2 className="text-2xl font-bold text-ink">
+                EV battery help for {siteConfig.city} drivers
+              </h2>
+              <p className="mt-4 text-muted">
+                Range loss, charging trouble, and battery warning lights are
+                some of the most stressful — and expensive — things an EV owner
+                can face. Before you assume the worst, get a clear preliminary
+                read on whether your situation is worth a professional battery
+                diagnostic, and what kind of cost you might be looking at.
+              </p>
+              <p className="mt-4 text-muted">
+                When you&apos;re ready, we&apos;ll help you connect with an EV
+                battery specialist serving {siteConfig.city} and the{" "}
+                {siteConfig.region}.
+              </p>
+            </div>
+            <div className="rounded-xl border border-line bg-surface p-6">
+              <h3 className="font-semibold text-ink">What this is — and isn&apos;t</h3>
+              <ul className="mt-4 space-y-3 text-sm text-muted">
+                <li className="flex gap-2">
+                  <span aria-hidden className="text-accent">✓</span>
+                  A plain-language, preliminary read on your situation
+                </li>
+                <li className="flex gap-2">
+                  <span aria-hidden className="text-accent">✓</span>
+                  Likely next steps and rough cost exposure
+                </li>
+                <li className="flex gap-2">
+                  <span aria-hidden className="text-faint">✕</span>
+                  Not a real battery-health measurement or diagnosis
+                </li>
+                <li className="flex gap-2">
+                  <span aria-hidden className="text-faint">✕</span>
+                  Not a repair quote
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-12 text-center">
+            <Link
+              href="/check"
+              className="inline-flex justify-center items-center rounded-lg bg-brand px-7 py-3.5 text-base font-semibold text-white hover:bg-brand-dark transition-colors"
+            >
+              Check My EV
+            </Link>
+          </div>
+        </section>
       </main>
-    </div>
+
+      <SiteFooter />
+    </>
   );
 }

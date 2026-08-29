@@ -1,26 +1,39 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * EV Battery Check — automotive, trustworthy, light-first.
+ * White/light surfaces, charcoal ink, one electric-blue accent + green.
+ * Deliberately NOT a dark "AI tool" look, so no prefers-color-scheme invert.
+ */
+
+@theme {
+  --color-ink: #1b1f24; /* primary charcoal text */
+  --color-muted: #5b6470; /* secondary text */
+  --color-faint: #8a929c; /* hints, captions */
+  --color-line: #e4e8ed; /* borders */
+  --color-surface: #f6f8fa; /* soft panels */
+  --color-brand: #0a5cff; /* electric blue accent */
+  --color-brand-dark: #0847c7;
+  --color-accent: #00b866; /* electric green */
+  --color-accent-dark: #009a55;
+  --color-warn: #b4540a; /* caution copy */
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #ffffff;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Consistent focus ring for keyboard users across interactive elements. */
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
 }
