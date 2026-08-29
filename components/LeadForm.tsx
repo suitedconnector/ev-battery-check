@@ -15,6 +15,7 @@ const inputCls =
 const labelCls = "block text-sm font-medium text-ink mb-1.5";
 
 export default function LeadForm({ data, assessment }: Props) {
+  const areaLabel = siteConfig.leadGen.serviceAreaLabel;
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -42,7 +43,7 @@ export default function LeadForm({ data, assessment }: Props) {
       assessmentCategory: assessment.category,
       description: description.trim(),
       consent,
-      providerId: primaryProvider.id,
+      providerId: primaryProvider?.id ?? "unassigned",
       submittedAt: new Date().toISOString(),
     };
 
@@ -73,11 +74,13 @@ export default function LeadForm({ data, assessment }: Props) {
           ✓
         </div>
         <h2 className="mt-4 text-xl font-bold text-ink">
-          Thanks — we&apos;ll connect you with a local specialist
+          Thanks — we&apos;ll connect you with a specialist
         </h2>
         <p className="mt-2 text-muted">
-          A specialist serving {siteConfig.city} and the {siteConfig.region}{" "}
-          area will follow up about your {data.make} {data.model}.
+          {areaLabel
+            ? `A specialist in ${areaLabel} will follow up`
+            : "A specialist will follow up"}{" "}
+          about your {data.make} {data.model}.
         </p>
       </div>
     );
@@ -86,7 +89,7 @@ export default function LeadForm({ data, assessment }: Props) {
   return (
     <form onSubmit={submit}>
       <h1 className="text-2xl font-bold text-ink">
-        Connect with a local EV battery specialist
+        Connect with an EV battery specialist
       </h1>
       <p className="mt-2 text-muted">
         Share your details and we&apos;ll help you get a professional answer for

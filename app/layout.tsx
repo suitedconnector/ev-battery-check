@@ -8,8 +8,9 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-const title = `EV Battery Health Check — ${siteConfig.city} & ${siteConfig.region}`;
-const description = `Get a quick preliminary assessment of your EV battery situation in ${siteConfig.city} and the ${siteConfig.region}, and understand whether it's worth a professional diagnostic.`;
+const title = "EV Battery Health Check — Preliminary EV Battery Assessment";
+const description =
+  "Get a quick preliminary assessment of your EV or hybrid battery situation and understand whether it's worth getting professionally diagnosed. Works for EV owners anywhere in the U.S.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.siteUrl),

@@ -9,6 +9,7 @@ import LeadForm from "@/components/LeadForm";
 import { EvFormData } from "@/lib/types";
 import { calculateAssessment } from "@/lib/assessment";
 import { track } from "@/lib/analytics";
+import { leadGenEnabled } from "@/lib/config";
 
 type View = "form" | "result" | "lead";
 
@@ -38,10 +39,13 @@ export default function CheckPage() {
     });
   }
 
-  function handleFindSpecialist() {
-    track("specialist_cta_clicked", { category: assessment?.category });
-    setView("lead");
-  }
+  // Only wired when the lead-gen module is enabled (see lib/config.ts).
+  const handleFindSpecialist = leadGenEnabled
+    ? () => {
+        track("specialist_cta_clicked", { category: assessment?.category });
+        setView("lead");
+      }
+    : undefined;
 
   function reset() {
     setData(null);

@@ -19,7 +19,7 @@ const steps = [
   },
   {
     title: "Know your next step",
-    body: "See likely next steps, rough cost exposure, and connect with a local specialist.",
+    body: "See likely next steps and rough cost exposure, so you know what to ask a technician.",
   },
 ];
 
@@ -34,20 +34,15 @@ const symptoms = [
 
 const jsonLd = {
   "@context": "https://schema.org",
-  "@type": "Service",
-  serviceType: "EV battery diagnostic and health check",
+  "@type": "WebApplication",
   name: "EV Battery Health Check",
-  description: `Preliminary EV battery assessment and connection to local battery diagnostic specialists in ${siteConfig.city} and the ${siteConfig.region}.`,
+  applicationCategory: "UtilitiesApplication",
+  operatingSystem: "Web",
+  description:
+    "Free preliminary EV and hybrid battery assessment: answer a few questions to see whether your battery situation is worth getting professionally diagnosed.",
   url: siteConfig.siteUrl,
-  areaServed: [
-    { "@type": "City", name: siteConfig.city },
-    { "@type": "AdministrativeArea", name: siteConfig.region },
-  ],
-  provider: {
-    "@type": "LocalBusiness",
-    name: "EV Battery Check",
-    areaServed: `${siteConfig.city}, ${siteConfig.region}`,
-  },
+  areaServed: { "@type": "Country", name: "United States" },
+  offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
 };
 
 export default function Home() {
@@ -64,7 +59,7 @@ export default function Home() {
         {/* Hero */}
         <section className="mx-auto max-w-5xl px-4 pt-16 pb-14 sm:pt-24 sm:pb-20">
           <p className="text-sm font-semibold uppercase tracking-wide text-brand">
-            {siteConfig.city} &amp; the {siteConfig.region}
+            For EV &amp; hybrid owners
           </p>
           <h1 className="mt-3 text-4xl sm:text-5xl font-extrabold leading-tight text-ink max-w-3xl">
             Is Your EV Battery Losing Its Charge?
@@ -119,12 +114,12 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Local trust / SEO-supporting copy */}
+        {/* Trust / SEO-supporting copy */}
         <section className="mx-auto max-w-5xl px-4 py-14">
           <div className="grid gap-8 sm:grid-cols-2 items-start">
             <div>
               <h2 className="text-2xl font-bold text-ink">
-                EV battery help for {siteConfig.city} drivers
+                EV battery worries, explained simply
               </h2>
               <p className="mt-4 text-muted">
                 Range loss, charging trouble, and battery warning lights are
@@ -134,9 +129,9 @@ export default function Home() {
                 diagnostic, and what kind of cost you might be looking at.
               </p>
               <p className="mt-4 text-muted">
-                When you&apos;re ready, we&apos;ll help you connect with an EV
-                battery specialist serving {siteConfig.city} and the{" "}
-                {siteConfig.region}.
+                It works for EV and hybrid owners anywhere in the U.S. — no
+                account, no location required. Take the result to a qualified
+                EV technician for a proper diagnosis.
               </p>
             </div>
             <div className="rounded-xl border border-line bg-surface p-6">

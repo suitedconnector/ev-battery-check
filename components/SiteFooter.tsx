@@ -12,8 +12,8 @@ export default function SiteFooter() {
           before making repair or purchase decisions.
         </p>
         <p className="text-faint">
-          Serving EV owners in {siteConfig.city} and the {siteConfig.region}. ©{" "}
-          {new Date().getFullYear()} EV Battery Check.
+          For EV and hybrid owners across the U.S. © {new Date().getFullYear()}{" "}
+          {siteConfig.brand}.
         </p>
       </div>
     </footer>

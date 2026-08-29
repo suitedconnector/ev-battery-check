@@ -1,10 +1,11 @@
 import { Assessment, EvFormData } from "@/lib/types";
-import { siteConfig } from "@/lib/config";
+import { leadGenEnabled, siteConfig } from "@/lib/config";
 
 interface Props {
   data: EvFormData;
   assessment: Assessment;
-  onFindSpecialist: () => void;
+  /** Present only when the lead-gen module is enabled. */
+  onFindSpecialist?: () => void;
 }
 
 const CONFIDENCE_LABEL = {
@@ -92,21 +93,41 @@ export default function AssessmentResult({
         </p>
       </section>
 
-      {/* Lead CTA */}
-      <section className="mt-8 rounded-xl border border-brand/30 bg-brand/5 p-6 text-center">
-        <h2 className="text-xl font-bold text-ink">Want a professional answer?</h2>
-        <p className="mt-2 text-muted">
-          Connect with an EV battery specialist in the {siteConfig.city} /{" "}
-          {siteConfig.region} area.
-        </p>
-        <button
-          type="button"
-          onClick={onFindSpecialist}
-          className="mt-5 inline-flex items-center rounded-lg bg-brand px-7 py-3.5 text-base font-semibold text-white hover:bg-brand-dark transition-colors"
-        >
-          Find a Local EV Battery Specialist
-        </button>
-      </section>
+      {/* Next-action CTA.
+          Lead-gen is a modular add-on: when it's enabled we offer to connect
+          the user with a specialist; otherwise (MVP) we give provider-neutral
+          guidance so the tool never depends on having a local provider. */}
+      {leadGenEnabled && onFindSpecialist ? (
+        <section className="mt-8 rounded-xl border border-brand/30 bg-brand/5 p-6 text-center">
+          <h2 className="text-xl font-bold text-ink">
+            Want a professional answer?
+          </h2>
+          <p className="mt-2 text-muted">
+            Connect with an EV battery specialist
+            {siteConfig.leadGen.serviceAreaLabel
+              ? ` in ${siteConfig.leadGen.serviceAreaLabel}`
+              : ""}
+            .
+          </p>
+          <button
+            type="button"
+            onClick={onFindSpecialist}
+            className="mt-5 inline-flex items-center rounded-lg bg-brand px-7 py-3.5 text-base font-semibold text-white hover:bg-brand-dark transition-colors"
+          >
+            Find an EV Battery Specialist
+          </button>
+        </section>
+      ) : (
+        <section className="mt-8 rounded-xl border border-line bg-surface p-6">
+          <h2 className="text-lg font-bold text-ink">Your next step</h2>
+          <p className="mt-2 text-muted">
+            Take this preliminary read to a qualified EV technician or your
+            dealer&apos;s EV-certified service department for a proper
+            diagnostic. Bring the details above — your symptoms, mileage, and
+            any range figures — to help them zero in faster.
+          </p>
+        </section>
+      )}
 
       {/* Disclaimer */}
       <p className="mt-6 text-xs text-faint leading-relaxed">
