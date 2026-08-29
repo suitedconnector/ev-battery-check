@@ -7,8 +7,10 @@
  */
 
 export type AnalyticsEvent =
-  | "assessment_started"
-  | "assessment_completed"
+  | "calculator_started"
+  | "calculator_completed"
+  | "quote_entered"
+  | "result_viewed"
   | "specialist_cta_clicked"
   | "lead_submitted";
 
@@ -16,6 +18,5 @@ export function track(
   event: AnalyticsEvent,
   props: Record<string, unknown> = {}
 ): void {
-  // eslint-disable-next-line no-console
   console.log(`[analytics] ${event}`, props);
 }

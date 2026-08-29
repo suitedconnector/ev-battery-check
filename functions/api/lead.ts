@@ -1,31 +1,32 @@
 /**
  * Cloudflare Pages Function — lead sink.
  *
- * Replaces the former Next.js API route (app/api/lead/route.ts), which cannot
- * run under a static export. Same path (/api/lead), same payload shape, same
- * response contract. Later, swap the console.log for a DB insert / CRM call /
- * provider webhook keyed on `providerId`.
+ * Static-export builds have no Next server runtime, so lead submissions land
+ * here. Same path (/api/lead), same payload shape as lib/types.ts LeadPayload,
+ * same response contract. Later, replace the console.log with a DB insert /
+ * CRM call / provider webhook keyed on `providerId` so leads can be routed to
+ * different providers.
  *
- * The LeadPayload shape is re-declared here (kept identical to lib/types.ts)
- * so the Function stays self-contained and free of Next path aliases.
+ * The payload shape is re-declared here (kept identical to lib/types.ts) so the
+ * Function stays self-contained and free of Next path aliases.
  */
 
 interface LeadPayload {
   name: string;
   email: string;
   phone?: string;
-  zip: string;
-  vehicle: {
-    make: string;
-    model: string;
-    year: number | "";
-  };
-  problem: string;
-  assessmentCategory: string;
-  description: string;
-  consent: boolean;
+  location: string;
+  vehicle: { make: string; model: string };
+  year: number | "";
+  mileage: number | "";
+  symptoms: string[];
+  rangeRetention?: number;
+  quoteAmount?: number;
+  vehicleValue?: number;
+  warrantyStatus: string;
+  assessment: string;
   providerId: string;
-  submittedAt: string;
+  timestamp: string;
 }
 
 function json(body: unknown, status: number): Response {
@@ -46,7 +47,7 @@ export async function onRequestPost(context: {
   }
 
   // Minimal server-side validation — never trust the client.
-  if (!body.name || !body.email || !body.consent) {
+  if (!body.name || !body.email) {
     return json({ ok: false, error: "missing_required_fields" }, 400);
   }
 
@@ -54,18 +55,21 @@ export async function onRequestPost(context: {
     name: String(body.name),
     email: String(body.email),
     phone: body.phone ? String(body.phone) : undefined,
-    zip: body.zip ? String(body.zip) : "",
+    location: body.location ? String(body.location) : "",
     vehicle: {
       make: body.vehicle?.make ?? "",
       model: body.vehicle?.model ?? "",
-      year: body.vehicle?.year ?? "",
     },
-    problem: body.problem ?? "",
-    assessmentCategory: body.assessmentCategory ?? "not-enough-info",
-    description: body.description ? String(body.description) : "",
-    consent: Boolean(body.consent),
-    providerId: body.providerId ? String(body.providerId) : "unknown",
-    submittedAt: body.submittedAt ?? new Date().toISOString(),
+    year: body.year ?? "",
+    mileage: body.mileage ?? "",
+    symptoms: Array.isArray(body.symptoms) ? body.symptoms.map(String) : [],
+    rangeRetention: body.rangeRetention,
+    quoteAmount: body.quoteAmount,
+    vehicleValue: body.vehicleValue,
+    warrantyStatus: body.warrantyStatus ? String(body.warrantyStatus) : "",
+    assessment: body.assessment ? String(body.assessment) : "not-enough-info",
+    providerId: body.providerId ? String(body.providerId) : "unassigned",
+    timestamp: body.timestamp ?? new Date().toISOString(),
   };
 
   console.log("[lead] received", JSON.stringify(lead));

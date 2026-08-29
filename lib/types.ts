@@ -1,94 +1,148 @@
-/** Shared domain types for the questionnaire, assessment engine, and lead. */
+/** Shared domain types for the calculator, decision engine, and lead. */
 
-export const PROBLEM_OPTIONS = [
-  { value: "reduced-range", label: "Reduced driving range" },
+import type { Powertrain } from "./vehicles";
+export type { Powertrain };
+
+// ---- Step 2: battery situation (multi-select) ----
+
+export const SYMPTOM_OPTIONS = [
+  { value: "range-drop", label: "Range has dropped significantly" },
   { value: "warning-light", label: "Battery warning light" },
   { value: "wont-charge", label: "Car won't charge" },
-  { value: "slow-charging", label: "Charging is unusually slow" },
-  { value: "power-loss", label: "Sudden loss of power" },
+  { value: "slow-charging", label: "Charging is slower than normal" },
+  { value: "power-loss", label: "Car loses power" },
   { value: "fast-drain", label: "Battery drains unusually fast" },
-  { value: "health-check", label: "No obvious problem — just checking battery health" },
-  { value: "other", label: "Other" },
+  { value: "diagnostic-done", label: "Battery diagnostic already performed" },
+  { value: "have-quote", label: "I received a battery replacement quote" },
+  { value: "buying-used", label: "I'm buying a used EV and want to evaluate the battery" },
+  { value: "health-check", label: "I'm just checking battery health" },
 ] as const;
 
-export type ProblemValue = (typeof PROBLEM_OPTIONS)[number]["value"];
+export type SymptomValue = (typeof SYMPTOM_OPTIONS)[number]["value"];
 
-export type Powertrain = "full-ev" | "hybrid";
-export type YesNoUnknown = "yes" | "no" | "unknown";
+export type QuoteType = "none" | "repair" | "replacement";
+export type BatteryType =
+  | "new-oem"
+  | "reman"
+  | "used"
+  | "module-repair"
+  | "unknown";
+export type WarrantyStatus = "yes" | "no" | "unknown";
 
-export interface EvFormData {
+export interface CalculatorInput {
   make: string;
   model: string;
   year: number | "";
   mileage: number | "";
   powertrain: Powertrain | "";
-  problem: ProblemValue | "";
-  /** Optional — user may not know these. Empty string when unknown. */
-  currentRange: number | "";
+  symptoms: SymptomValue[];
+  // Range (miles) — user-reported, optional
   originalRange: number | "";
-  previousBatteryRepairs: YesNoUnknown | "";
+  currentRange: number | "";
+  // Quote (all optional)
+  quoteType: QuoteType | "";
+  quoteAmount: number | "";
+  quoteBatteryType: BatteryType | "";
+  // Value
+  vehicleValue: number | "";
+  vehicleValueUnknown: boolean;
+  // Warranty
+  warranty: WarrantyStatus | "";
+  // Location (optional)
   zip: string;
 }
 
-export const emptyFormData: EvFormData = {
+export const emptyCalculatorInput: CalculatorInput = {
   make: "",
   model: "",
   year: "",
   mileage: "",
   powertrain: "",
-  problem: "",
-  currentRange: "",
+  symptoms: [],
   originalRange: "",
-  previousBatteryRepairs: "",
+  currentRange: "",
+  quoteType: "",
+  quoteAmount: "",
+  quoteBatteryType: "",
+  vehicleValue: "",
+  vehicleValueUnknown: false,
+  warranty: "",
   zip: "",
 };
 
-// ---- Assessment output (produced by lib/assessment.ts) ----
+// ---- Decision engine output ----
 
-export type AssessmentCategory =
-  | "worth-checking"
-  | "possible-degradation"
-  | "possible-charging-issue"
-  | "possible-battery-fault"
+export type DecisionTone = "green" | "yellow" | "red" | "blue";
+
+/** Stable machine key for the decision (also sent with the lead). */
+export type DecisionStatus =
+  | "likely-healthy"
+  | "degradation-watch"
+  | "get-diagnostic"
+  | "major-financial-decision"
+  | "warranty-first"
+  | "used-ev-due-diligence"
   | "not-enough-info";
 
-export type Confidence = "low" | "medium" | "high";
-export type Urgency = "routine" | "soon" | "prompt";
-export type CostTier = "$" | "$$" | "$$$";
+export interface CostLine {
+  label: string;
+  value: string;
+}
 
-export interface Assessment {
-  category: AssessmentCategory;
-  categoryLabel: string;
-  confidence: Confidence;
-  explanation: string;
-  possibleNextSteps: string[];
-  costCategory: {
-    diagnostic: CostTier;
-    summary: string;
+export interface QuoteAnalysis {
+  quoteAmount: number;
+  vehicleValue?: number;
+  quoteToValuePct?: number;
+  percentText: string; // human sentence about % of value (or that value is unknown)
+  significance: string; // whether it reads as financially significant
+  batteryTypeNote?: string; // note about new/reman/used/module
+  questionsToAsk: string[];
+}
+
+export interface DecisionResult {
+  mode: "standard" | "used-ev";
+  status: DecisionStatus;
+  tone: DecisionTone;
+  headline: string; // e.g. "GET A PROFESSIONAL DIAGNOSTIC"
+  summary: string;
+  /** Big-number metrics for the result cards. */
+  metrics: {
+    rangeRetentionPct?: number; // estimate from user-reported ranges
+    quoteAmount?: number;
+    vehicleValue?: number;
+    quoteToValuePct?: number;
   };
-  urgency: Urgency;
+  whatThisMeans: string[];
+  nextBestStep: string;
+  quoteAnalysis?: QuoteAnalysis;
+  dueDiligence?: string[]; // used-EV mode
+  costModel: CostLine[];
+  warrantyNotice?: string;
+  showSpecialistCTA: boolean;
 }
 
 // ---- Lead capture (POSTed to /api/lead) ----
-// Shape kept clean + typed so it can later be forwarded to a DB or CRM
-// without reworking the client.
+// Shape kept clean + typed so it can later be forwarded to a DB, CRM, or
+// different providers without reworking the client.
 
 export interface LeadPayload {
+  // Contact (only collected if the user chooses to request help)
   name: string;
   email: string;
   phone?: string;
-  zip: string;
-  vehicle: {
-    make: string;
-    model: string;
-    year: number | "";
-  };
-  problem: ProblemValue | "";
-  assessmentCategory: AssessmentCategory;
-  description: string;
-  consent: boolean;
+  location: string; // ZIP
+  // Vehicle + calculator context
+  vehicle: { make: string; model: string };
+  year: number | "";
+  mileage: number | "";
+  symptoms: SymptomValue[];
+  rangeRetention?: number; // percent estimate
+  quoteAmount?: number;
+  vehicleValue?: number;
+  warrantyStatus: WarrantyStatus | "";
+  assessment: DecisionStatus;
   /** Which configured provider this lead is attributed to. */
   providerId: string;
   /** ISO timestamp set client-side at submit. */
-  submittedAt: string;
+  timestamp: string;
 }

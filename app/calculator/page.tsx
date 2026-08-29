@@ -3,46 +3,43 @@
 import { useEffect, useMemo, useState } from "react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import Questionnaire from "@/components/Questionnaire";
-import AssessmentResult from "@/components/AssessmentResult";
+import Calculator from "@/components/Calculator";
+import DecisionResult from "@/components/DecisionResult";
 import LeadForm from "@/components/LeadForm";
-import { EvFormData } from "@/lib/types";
-import { calculateAssessment } from "@/lib/assessment";
+import { CalculatorInput } from "@/lib/types";
+import { calculateDecision } from "@/lib/decision";
 import { track } from "@/lib/analytics";
 import { leadGenEnabled } from "@/lib/config";
 
 type View = "form" | "result" | "lead";
 
-export default function CheckPage() {
+export default function CalculatorPage() {
   const [view, setView] = useState<View>("form");
-  const [data, setData] = useState<EvFormData | null>(null);
+  const [data, setData] = useState<CalculatorInput | null>(null);
 
-  const assessment = useMemo(
-    () => (data ? calculateAssessment(data) : null),
+  const result = useMemo(
+    () => (data ? calculateDecision(data) : null),
     [data]
   );
 
-  // Each view swap replaces the whole screen — start it at the top so the
-  // user isn't dropped mid-page (most visible on mobile after a bottom CTA).
   useEffect(() => {
     window.scrollTo({ top: 0 });
   }, [view]);
 
-  function handleComplete(formData: EvFormData) {
-    const result = calculateAssessment(formData);
-    setData(formData);
+  function handleComplete(inputData: CalculatorInput) {
+    const decision = calculateDecision(inputData);
+    setData(inputData);
     setView("result");
-    track("assessment_completed", {
-      category: result.category,
-      confidence: result.confidence,
-      problem: formData.problem,
+    track("calculator_completed", {
+      status: decision.status,
+      hasQuote: decision.metrics.quoteAmount !== undefined,
     });
+    track("result_viewed", { status: decision.status });
   }
 
-  // Only wired when the lead-gen module is enabled (see lib/config.ts).
   const handleFindSpecialist = leadGenEnabled
     ? () => {
-        track("specialist_cta_clicked", { category: assessment?.category });
+        track("specialist_cta_clicked", { status: result?.status });
         setView("lead");
       }
     : undefined;
@@ -55,24 +52,25 @@ export default function CheckPage() {
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto w-full max-w-xl px-4 py-10 sm:py-14">
+      <main className="mx-auto w-full max-w-2xl px-4 py-10 sm:py-14">
         {view === "form" && (
           <>
             <h1 className="text-2xl font-bold text-ink mb-1">
-              Check your EV battery
+              EV Battery Repair vs. Replace Calculator
             </h1>
             <p className="text-muted mb-8">
-              A few quick questions — no account, about a minute.
+              Answer a few questions to see whether a repair or replacement
+              makes sense — no account, no email required.
             </p>
-            <Questionnaire onComplete={handleComplete} />
+            <Calculator onComplete={handleComplete} />
           </>
         )}
 
-        {view === "result" && data && assessment && (
+        {view === "result" && data && result && (
           <>
-            <AssessmentResult
-              data={data}
-              assessment={assessment}
+            <DecisionResult
+              input={data}
+              result={result}
               onFindSpecialist={handleFindSpecialist}
             />
             <button
@@ -85,15 +83,15 @@ export default function CheckPage() {
           </>
         )}
 
-        {view === "lead" && data && assessment && (
+        {view === "lead" && data && result && (
           <>
-            <LeadForm data={data} assessment={assessment} />
+            <LeadForm input={data} result={result} />
             <button
               type="button"
               onClick={() => setView("result")}
               className="mt-8 text-sm font-medium text-brand hover:text-brand-dark"
             >
-              ← Back to assessment
+              ← Back to result
             </button>
           </>
         )}

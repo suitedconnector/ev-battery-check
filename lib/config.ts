@@ -51,10 +51,12 @@ export const siteConfig: SiteConfig = {
   brand: "EV Battery Check",
   siteUrl: "https://ev.airobotools.com",
 
-  // Lead generation is intentionally OFF for the MVP. The assessment works
-  // for EV owners anywhere in the U.S. with no provider dependency.
+  // Optional secondary CTA. The calculator is fully usable without it — no
+  // contact info is required to get a result. Enabled so users who WANT a
+  // professional diagnostic can request one. No provider is wired yet, so
+  // leads are tagged "unassigned" until a provider is added here.
   leadGen: {
-    enabled: false,
+    enabled: true,
     mode: "lead-form",
     providers: [],
   },

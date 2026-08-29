@@ -1,32 +1,34 @@
 "use client";
 
 import { useState } from "react";
-import { Assessment, EvFormData, LeadPayload } from "@/lib/types";
-import { primaryProvider, siteConfig } from "@/lib/config";
+import { CalculatorInput, DecisionResult, LeadPayload } from "@/lib/types";
+import { primaryProvider } from "@/lib/config";
 import { track } from "@/lib/analytics";
 
 interface Props {
-  data: EvFormData;
-  assessment: Assessment;
+  input: CalculatorInput;
+  result: DecisionResult;
 }
 
 const inputCls =
   "w-full rounded-lg border border-line bg-white px-3 py-2.5 text-base text-ink placeholder:text-faint focus:border-brand";
 const labelCls = "block text-sm font-medium text-ink mb-1.5";
 
-export default function LeadForm({ data, assessment }: Props) {
-  const areaLabel = siteConfig.leadGen.serviceAreaLabel;
+export default function LeadForm({ input, result }: Props) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [zip, setZip] = useState(data.zip);
-  const [description, setDescription] = useState("");
+  const [zip, setZip] = useState(input.zip);
   const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">(
     "idle"
   );
 
   const canSubmit = name.trim() && email.trim() && consent && status !== "sending";
+  const vehicleLabel =
+    [input.year, input.make === "__other__" ? "" : input.make, input.model]
+      .filter(Boolean)
+      .join(" ") || "your EV";
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -37,14 +39,21 @@ export default function LeadForm({ data, assessment }: Props) {
       name: name.trim(),
       email: email.trim(),
       phone: phone.trim() || undefined,
-      zip: zip.trim(),
-      vehicle: { make: data.make, model: data.model, year: data.year },
-      problem: data.problem,
-      assessmentCategory: assessment.category,
-      description: description.trim(),
-      consent,
+      location: zip.trim(),
+      vehicle: {
+        make: input.make === "__other__" ? "" : input.make,
+        model: input.model,
+      },
+      year: input.year,
+      mileage: input.mileage,
+      symptoms: input.symptoms,
+      rangeRetention: result.metrics.rangeRetentionPct,
+      quoteAmount: result.metrics.quoteAmount,
+      vehicleValue: result.metrics.vehicleValue,
+      warrantyStatus: input.warranty,
+      assessment: result.status,
       providerId: primaryProvider?.id ?? "unassigned",
-      submittedAt: new Date().toISOString(),
+      timestamp: new Date().toISOString(),
     };
 
     try {
@@ -56,7 +65,7 @@ export default function LeadForm({ data, assessment }: Props) {
       if (!res.ok) throw new Error(`status ${res.status}`);
       track("lead_submitted", {
         providerId: payload.providerId,
-        assessmentCategory: payload.assessmentCategory,
+        assessment: payload.assessment,
       });
       setStatus("done");
     } catch {
@@ -74,13 +83,11 @@ export default function LeadForm({ data, assessment }: Props) {
           ✓
         </div>
         <h2 className="mt-4 text-xl font-bold text-ink">
-          Thanks — we&apos;ll connect you with a specialist
+          Thanks — we&apos;ll help you find a specialist
         </h2>
         <p className="mt-2 text-muted">
-          {areaLabel
-            ? `A specialist in ${areaLabel} will follow up`
-            : "A specialist will follow up"}{" "}
-          about your {data.make} {data.model}.
+          A specialist will follow up about {vehicleLabel}. Nothing else is
+          needed from you right now.
         </p>
       </div>
     );
@@ -89,16 +96,13 @@ export default function LeadForm({ data, assessment }: Props) {
   return (
     <form onSubmit={submit}>
       <h1 className="text-2xl font-bold text-ink">
-        Connect with an EV battery specialist
+        Request a professional battery diagnostic
       </h1>
       <p className="mt-2 text-muted">
-        Share your details and we&apos;ll help you get a professional answer for
-        your{" "}
-        <span className="font-medium text-ink">
-          {[data.year, data.make, data.model].filter(Boolean).join(" ") ||
-            "EV"}
-        </span>
-        .
+        Optional. Share your details and we&apos;ll help you connect with an EV
+        battery specialist for{" "}
+        <span className="font-medium text-ink">{vehicleLabel}</span>. Your
+        calculator result is included so they have context.
       </p>
 
       <div className="mt-6 space-y-4">
@@ -130,8 +134,7 @@ export default function LeadForm({ data, assessment }: Props) {
           </div>
           <div>
             <label htmlFor="lead-phone" className={labelCls}>
-              Phone{" "}
-              <span className="text-faint font-normal">(optional)</span>
+              Phone <span className="text-faint font-normal">(optional)</span>
             </label>
             <input
               id="lead-phone"
@@ -158,20 +161,6 @@ export default function LeadForm({ data, assessment }: Props) {
             }
           />
         </div>
-        <div>
-          <label htmlFor="lead-desc" className={labelCls}>
-            Anything else about the problem?{" "}
-            <span className="text-faint font-normal">(optional)</span>
-          </label>
-          <textarea
-            id="lead-desc"
-            rows={3}
-            className={inputCls}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="When it started, what you've noticed…"
-          />
-        </div>
 
         <label className="flex gap-2.5 text-sm text-muted">
           <input
@@ -182,8 +171,8 @@ export default function LeadForm({ data, assessment }: Props) {
           />
           <span>
             I agree to be contacted by phone, text, or email about my request. I
-            understand this is a preliminary assessment, not a diagnosis, and
-            that a specialist will confirm any battery condition.
+            understand this is a preliminary estimate, not a diagnosis, and that
+            a specialist will confirm any battery condition.
           </span>
         </label>
       </div>

@@ -14,10 +14,10 @@ export default function SiteHeader() {
           <span>Battery Check</span>
         </Link>
         <Link
-          href="/check"
+          href="/calculator"
           className="text-sm font-semibold text-brand hover:text-brand-dark"
         >
-          Check my EV →
+          Open calculator →
         </Link>
       </div>
     </header>

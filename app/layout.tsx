@@ -8,9 +8,10 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-const title = "EV Battery Health Check — Preliminary EV Battery Assessment";
+const title =
+  "EV Battery Repair vs. Replace Calculator — Cost & Health Check";
 const description =
-  "Get a quick preliminary assessment of your EV or hybrid battery situation and understand whether it's worth getting professionally diagnosed. Works for EV owners anywhere in the U.S.";
+  "Free EV battery calculator: weigh a repair or replacement quote against your car's value and range retention, and see whether it's worth getting professionally diagnosed. For EV & hybrid owners anywhere in the U.S.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.siteUrl),
