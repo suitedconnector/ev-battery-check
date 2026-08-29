@@ -46,7 +46,7 @@ export interface SiteConfig {
 export const siteConfig: SiteConfig = {
   city: "Pasadena",
   region: "San Gabriel Valley",
-  siteUrl: "https://evbatterycheck.example.com",
+  siteUrl: "https://ev.airobotools.com",
 
   cta: {
     mode: "lead-form",
