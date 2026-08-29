@@ -32,9 +32,32 @@ const symptoms = [
   "Fast battery drain",
 ];
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  serviceType: "EV battery diagnostic and health check",
+  name: "EV Battery Health Check",
+  description: `Preliminary EV battery assessment and connection to local battery diagnostic specialists in ${siteConfig.city} and the ${siteConfig.region}.`,
+  url: siteConfig.siteUrl,
+  areaServed: [
+    { "@type": "City", name: siteConfig.city },
+    { "@type": "AdministrativeArea", name: siteConfig.region },
+  ],
+  provider: {
+    "@type": "LocalBusiness",
+    name: "EV Battery Check",
+    areaServed: `${siteConfig.city}, ${siteConfig.region}`,
+  },
+};
+
 export default function Home() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        // Structured data for local EV-battery service search.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <SiteHeader />
 
       <main>
